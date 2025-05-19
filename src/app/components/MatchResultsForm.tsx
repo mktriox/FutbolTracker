@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -637,4 +636,3 @@ function calculateRankingsUpdate(
 
     return { rankings: newRankings, totalLocalMatchPoints, totalVisitorMatchPoints, categoryUpdates };
 }
-
