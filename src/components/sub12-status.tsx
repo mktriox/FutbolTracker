@@ -67,7 +67,7 @@ export function Sub12Status() {
 
       setSortedSub12Rankings(filteredRankings);
 
-      const sub12Completed = checkSub12Completion(rawRankings); // Pass current rankings
+      const sub12Completed = checkSub12Completion(rawRankings); // Pasar rankings actuales
       setCanManuallyFinalize(sub12Completed && !isSub12Finalized);
 
        const playedGamesCount = countSub12Matches();
@@ -96,7 +96,7 @@ export function Sub12Status() {
 
    const handleManualFinalize = () => {
      if (canManuallyFinalize) {
-       finalizeSub12Points(rawRankings); // Pass current rankings
+       finalizeSub12Points(rawRankings); // Pasar rankings actuales
      }
    };
 
@@ -134,7 +134,7 @@ export function Sub12Status() {
         <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>{/* Ensure no whitespace between TableHead elements */}
+              <TableRow>
                 <TableHead className="w-[40px] text-center cursor-pointer" onClick={() => requestSort('points')}># {getSortIcon('points')}</TableHead><TableHead className="cursor-pointer min-w-[120px] sm:min-w-[150px]" onClick={() => requestSort('points')}>Club</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('points')}>Pts {getSortIcon('points')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('played')}>PJ {getSortIcon('played')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('won')}>PG {getSortIcon('won')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('drawn')}>PE {getSortIcon('drawn')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('lost')}>PP {getSortIcon('lost')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('goalsFor')}>GF {getSortIcon('goalsFor')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('goalsAgainst')}>GC {getSortIcon('goalsAgainst')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('goalDifference')}>DG {getSortIcon('goalDifference')}</TableHead>
               </TableRow>
             </TableHeader>
@@ -237,7 +237,7 @@ export function Sub12Status() {
                    {SUB12_POINTS_DISTRIBUTION.map((points, index) => (
                        <li key={index}>Posición {index + 1}: <span className="font-medium text-foreground">{points}</span> puntos</li>
                    ))}
-                    {rawRankings.length > SUB12_POINTS_DISTRIBUTION.length && (
+                    {rawRankings.length > SUB12_POINTS_DISTRIBUTION.length && ( // Para el equipo número 16 en adelante
                         <li>Posiciones {SUB12_POINTS_DISTRIBUTION.length + 1} en adelante: <span className="font-medium text-foreground">{SUB12_POINTS_DISTRIBUTION[SUB12_POINTS_DISTRIBUTION.length - 1] ?? 0}</span> puntos</li>
                     )}
                 </ul>
@@ -247,4 +247,3 @@ export function Sub12Status() {
     </div>
   );
 }
-
