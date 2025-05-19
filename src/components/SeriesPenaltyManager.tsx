@@ -3,8 +3,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRankings } from '@/lib/store';
-import { CATEGORIES, UserRole } from '@/types'; // Import UserRole
+import { CATEGORIES, UserRole, type Category } from '@/types'; // UserRole is already imported
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation'; // Import useRouter
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -16,21 +17,30 @@ import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
+    TooltipProvider
 } from "@/components/ui/tooltip";
 
 
 const SeriesPenaltyManager: React.FC = () => {
   const { data: session, status } = useSession();
+  const router = useRouter(); // Define router
   const { rankings, toggleSeriesDisabled, toggleDate3Passed, isDate3Passed, loading: rankingsLoading } = useRankings();
   const [selectedClubId, setSelectedClubId] = useState<string>('');
   const { toast } = useToast();
 
- useEffect(() => {
-    // This check should ideally be in a layout or higher-order component for /admin routes
-    if (!authLoading && (!currentUser || currentUser.role !== UserRole.ADMIN)) {
-      // router.push('/login?message=Access denied. Admin role required.'); // Redirect if not admin
+  const authLoading = status === 'loading'; // Define authLoading
+  const currentUser = session?.user as any; // Define currentUser (adjust type as needed, 'any' for now to match pattern)
+
+  useEffect(() => {
+    // This verification should ideally be in a layout or higher-order component for /admin routes
+    // The redirection logic is commented out. If re-enabled, it would use defined variables.
+    if (!authLoading && status !== 'authenticated') {
+        // Example: router.push('/login?message=Acceso requerido.');
+    } else if (status === 'authenticated' && (!currentUser || currentUser.role !== UserRole.ADMIN)) {
+      // Example: router.push('/login?message=Acceso denegado. Rol de administrador requerido.');
+      console.warn("User is not an admin, but SeriesPenaltyManager is being accessed/rendered.");
     }
-  }, [currentUser, authLoading, router]);
+  }, [currentUser, authLoading, status, router]); // Updated dependencies
 
   const handleToggleSeries = (category: Category, checked: boolean) => {
     if (!selectedClubId) return;
@@ -48,37 +58,39 @@ const SeriesPenaltyManager: React.FC = () => {
        description: `Las penalizaciones por series no presentadas ahora ${!isDate3Passed ? 'se aplicarán' : 'no se aplicarán'} a partir de la fecha 3.`,
      });
   };
-
-  // If still loading auth or user is not admin, don't render (or show loading/access denied)
-  // This specific component might be part of a larger admin page, so direct redirect here might be too aggressive.
-  // The parent page (e.g., /admin/clubs) should handle the primary access control.
-  if (status === 'loading' || rankingsLoading) {
+  
+  if (authLoading || rankingsLoading) { // Use defined authLoading
     return (
         <Card className="mt-6">
             <CardHeader>
                 <CardTitle>Cargando...</CardTitle>
             </CardHeader>
             <CardContent>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </TooltipTrigger>
-                 <TooltipContent>
-                     <p>Cargando...</p>
-                 </TooltipContent>
-             </Tooltip>
-                 {status === 'loading' && <p>Verificando sesión...</p>}
+              <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Cargando...</p>
+                    </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+                {authLoading && <p>Verificando sesión...</p>}
                 {rankingsLoading && <p>Cargando rankings...</p>}
             </CardContent>
         </Card>
     );
   }
   
-  if (!currentUser || currentUser.role !== UserRole.ADMIN) {
-    return null; // Or a message, but parent page should handle full denial
-    const currentUserRole = session?.user ? (session.user as any).role : undefined;
+  // This component is part of page.tsx's "championshipManagement" tab.
+  // The page itself should ideally handle tab visibility based on role.
+  // This internal check provides an additional layer of safety.
+  if (status === 'unauthenticated' || (status === 'authenticated' && (!currentUser || currentUser.role !== UserRole.ADMIN))) {
+    // Render nothing or a placeholder if not an admin.
+    // console.log("SeriesPenaltyManager: User not authorized. currentUser:", currentUser, "status:", status);
+    return null; 
   }
-
 
   const selectedClub = rankings.find((club) => club.id === selectedClubId);
 
@@ -115,10 +127,8 @@ const SeriesPenaltyManager: React.FC = () => {
                 <div key={category} className="flex items-center space-x-2 p-2 border rounded-md bg-background/30">
                   <Checkbox
                     id={`${selectedClubId}-${category}`}
-                    checked={!selectedClub.disabledSeries?.[category]} // Checked if series is NOT disabled (i.e., it's enabled)
+                    checked={!selectedClub.disabledSeries?.[category]} 
                     onCheckedChange={(checked) => {
-                      // If checkbox is checked (true), it means series should be enabled (disabledSeries = false)
-                      // If checkbox is unchecked (false), it means series should be disabled (disabledSeries = true)
                       handleToggleSeries(category, !(checked as boolean));
                     }}
                     aria-label={`Habilitar/Deshabilitar serie ${category} para ${selectedClub.name}`}
