@@ -26,7 +26,7 @@ export default function Navbar() {
     signOut();
   };
   
-  // Don't render Navbar on login page
+  // No renderizar la barra de navegación en la página de inicio de sesión
   if (pathname === '/login') {
     return null;
   }
@@ -59,15 +59,15 @@ export default function Navbar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {/* Acceder al rol a través de session.user.role */}
+                {/* Acceder al rol a través de session.user.role */} {/* Acceder al rol a través de session.user.role */}
 
                 {(session.user as any).role === 'ADMIN' && (
                    <DropdownMenuItem onClick={() => router.push('/admin/clubs')}>
                        <Settings className="mr-2 h-4 w-4" />
-                       <span>Manage Clubs</span>
+                       <span>Administrar Clubes</span>
                    </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive-foreground focus:bg-destructive/90">
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive-foreground focus:bg-destructive/90"> {/* Cerrar sesión */}
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </DropdownMenuItem>
