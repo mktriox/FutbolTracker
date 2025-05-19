@@ -5,7 +5,7 @@ import {Geist, Geist_Mono} from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
-import Navbar from '@/components/Navbar'; // Import Navbar
+import Navbar from '@/components/Navbar'; // Importar Navbar
 import SessionProviderWrapper from '@/components/SessionProviderWrapper';
 
 const geistSans = Geist({
@@ -39,8 +39,8 @@ export default function RootLayout({
                 enableSystem
                 disableTransitionOnChange
             >
-              <Navbar /> {/* Add Navbar here */}
-              <main className="flex-grow"> {/* Add main tag for content area */}
+              <Navbar /> {/* Añadir Navbar aquí */}
+              <main className="flex-grow"> {/* Añadir etiqueta main para el área de contenido */}
                 {children}
               </main>
               <Toaster />
