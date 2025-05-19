@@ -11,14 +11,14 @@ export function cn(...inputs: ClassValue[]) {
 export function calculateEndDate(startDate: Date, duration: number, unit: SuspensionUnit): Date {
   switch (unit) {
     case 'days':
-      return addDays(startDate, duration); // If duration is 1 day, player is free on startDate + 1 day
-    case 'dates': // 'dates' represents weekends/match days (assuming 1 match day per week/round)
-      return addWeeks(startDate, duration); // If duration is 1 'date', player is free after 1 week
+ return addDays(startDate, duration); // Si la duración es 1 día, el jugador queda libre el día startDate + 1
+ case 'dates': // 'dates' representa fines de semana/días de partido (asumiendo 1 día de partido por semana/ronda)
+ return addWeeks(startDate, duration); // Si la duración es 1 'fecha', el jugador queda libre después de 1 semana
     case 'months':
-      return addMonths(startDate, duration); // If duration is 1 month, player is free after 1 month
+ return addMonths(startDate, duration); // Si la duración es 1 mes, el jugador queda libre después de 1 mes
     default:
       return startDate;
-  }
+ }
 }
 
 
@@ -26,7 +26,7 @@ export function calculateAge(birthDate: Date, referenceDate: Date = new Date()):
   return differenceInYears(referenceDate, birthDate);
 }
 
-// Example function to format dates consistently
+// Función de ejemplo para formatear fechas de manera consistente
 export function formatDate(date: Date | string | number): string {
   try {
       return format(new Date(date), 'dd/MM/yyyy');
@@ -36,8 +36,8 @@ export function formatDate(date: Date | string | number): string {
   }
 }
 
-// Function to check if a date is within a suspension period
-// Assumes suspension.endDate is exclusive (the day the player becomes free)
+// Función para verificar si una fecha está dentro de un período de suspensión
+// Asume que suspension.endDate es exclusivo (el día en que el jugador queda libre)
 export function isSuspended(suspension: { startDate: Date, endDate: Date }, checkDate: Date = new Date()): boolean {
   const normalizedCheckDate = new Date(checkDate);
   normalizedCheckDate.setHours(0, 0, 0, 0);
@@ -45,17 +45,17 @@ export function isSuspended(suspension: { startDate: Date, endDate: Date }, chec
   const normalizedStartDate = new Date(suspension.startDate);
   normalizedStartDate.setHours(0, 0, 0, 0);
 
-  const normalizedEndDate = new Date(suspension.endDate); // This is the day they become free
+  const normalizedEndDate = new Date(suspension.endDate); // Este es el día en que quedan libres
   normalizedEndDate.setHours(0, 0, 0, 0);
 
   return normalizedCheckDate >= normalizedStartDate && normalizedCheckDate < normalizedEndDate;
 }
 
-// --- RUT Validation ---
+// --- Validación RUT ---
 
 /**
- * Calculates the verification digit (DV) for a Chilean RUT number body.
- * @param rutBody The RUT number without the verification digit (e.g., "12345678").
+ * Calcula el dígito verificador (DV) para el cuerpo de un número RUT chileno.
+ * @param rutBody El número RUT sin el dígito verificador (por ejemplo, "12345678").
  * @returns The calculated verification digit ('0'-'9' or 'K').
  */
 export function calculateRutDv(rutBody: string): string {
@@ -71,8 +71,8 @@ export function calculateRutDv(rutBody: string): string {
 }
 
 /**
- * Validates a Chilean RUT number (including the verification digit).
- * @param rut The full RUT string (e.g., "12.345.678-9" or "123456789").
+ * Valida un número RUT chileno (incluido el dígito verificador).
+ * @param rut La cadena RUT completa (por ejemplo, "12.345.678-9" o "123456789").
  * @returns True if the RUT is valid, false otherwise.
  */
 export function validateRut(rut: string | null | undefined): boolean {
@@ -84,7 +84,7 @@ export function validateRut(rut: string | null | undefined): boolean {
   const body = rutClean.slice(0, -1);
   const dv = rutClean.slice(-1);
 
-  // Ensure body contains only numbers
+  // Asegurarse de que el cuerpo contenga solo números
   if (!/^\d+$/.test(body)) {
       return false;
   }
@@ -93,8 +93,8 @@ export function validateRut(rut: string | null | undefined): boolean {
 }
 
 /**
- * Formats a RUT string by adding dots and hyphen.
- * @param rut The RUT string (e.g., "123456789" or "12345678K").
+ * Formatea una cadena RUT añadiendo puntos y guion.
+ * @param rut La cadena RUT (por ejemplo, "123456789" o "12345678K").
  * @returns Formatted RUT string (e.g., "12.345.678-9" or "12.345.678-K") or the original string if invalid.
  */
 export function formatRut(rut: string | null | undefined): string {
@@ -105,7 +105,7 @@ export function formatRut(rut: string | null | undefined): string {
     const body = rutClean.slice(0, -1);
     const dv = rutClean.slice(-1);
 
-    // Ensure body contains only numbers before formatting
+    // Asegurarse de que el cuerpo contenga solo números antes de formatear
     if (!/^\d+$/.test(body)) {
         return rut; // Return original if body is not numeric
     }
