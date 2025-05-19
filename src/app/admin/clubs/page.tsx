@@ -118,9 +118,9 @@ export default function ManageClubsPage() {
                     </Label>
                     <Checkbox
                       id={`${club.id}-${category}`}
-                      checked={!club.disabledSeries?.[category]} // Checked if NOT disabled (i.e., enabled)
+                      checked={!club.disabledSeries?.[category]} // Marcado si NO está deshabilitado (es decir, habilitado)
                       onCheckedChange={(checked) => {
-                        // Pass !checked because if checkbox is checked, it means series is enabled (not disabled)
+                        // Pasar !checked porque si el checkbox está marcado, significa que la serie está habilitada (no deshabilitada)
                         handleToggleSeries(club.id, category, !checked);
                       }}
                       aria-label={`Habilitar/Deshabilitar serie ${category} para ${club.name}`}
