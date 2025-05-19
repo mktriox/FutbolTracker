@@ -83,11 +83,3 @@ Futbol Tracker es una aplicación web diseñada para simplificar el seguimiento 
 ## Notas
 
 Este documento representa el estado actual del desarrollo de la aplicación. Puede ser sujeto a cambios a medida que el proyecto avance y se integren nuevas ideas y requisitos.
-
-
-
-
-
-
-
-
