@@ -40,19 +40,20 @@ export default function Home() {
     });
   };
 
-  // Mostrar estado de carga o redirigir si no autenticado
- // if (status === 'loading') {
-   // return (
-     // <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]"> {/* Adjust height considering navbar */}
-       // <Loader2 className="h-12 w-12 animate-spin text-primary" />
-       // <p className="ml-4 text-lg text-muted-foreground">Cargando sesión...</p> {/* Mensaje actualizado */}
+  // Mostrar estado de carga
+ // if (status === 'loading') { // Si el estado es cargando
+   // return ( // Retorna un div
+     // <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]"> {/* Ajusta la altura considerando la barra de navegación */}
+       // <Loader2 className="h-12 w-12 animate-spin text-primary" /> // Icono de carga animado
+       // <p className="ml-4 text-lg text-muted-foreground">Cargando sesión...</p> // Mensaje de carga
       //</div>
 
     //);
   //}
-  
-    // Ensure searchParams is not null and use a default value if it is
+
+    // Asegurarse de que searchParams no sea nulo y usar un valor por defecto si lo es
     const tabValue = searchParams ? searchParams.get("tab") : null;
+    // Establecer la pestaña inicial basada en el parámetro 'tab' o 'ranking' por defecto
     const initialTab = tabValue || "ranking";
     
     //const canAccessAdminFeatures = (session?.user as any)?.role === UserRole.ADMIN;
@@ -66,7 +67,7 @@ export default function Home() {
       <header className="mb-6 md:mb-8 text-center relative">
         <h1 className="text-3xl sm:text-4xl font-bold text-primary mb-2">Futbol Tracker</h1>
         <p className="text-md sm:text-lg text-muted-foreground">Campeonato de Fútbol Amateur</p>
-        {/* ThemeToggleButton is now in Navbar */}
+        {/* ThemeToggleButton ahora está en Navbar */}
       </header>
 
       <Tabs defaultValue={initialTab} className="w-full">
