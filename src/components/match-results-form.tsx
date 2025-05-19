@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormField,
+  FormField, // Campo del formulario
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription, // Added for existing match info
+  FormDescription, // Agregado para información de partido existente
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
@@ -50,7 +50,8 @@ const createResultsSchema = () => {
      path: ["visitorClubId"],
   }).refine(data => {
     // At least one category must have results if submitting
-    return CATEGORIES.some(category =>
+    // Al menos una categoría debe tener resultados si se está enviando
+    return CATEGORIES.some(category => 
         data.results[category].localGoals !== null && data.results[category].visitorGoals !== null
     )
   }, {
@@ -126,8 +127,8 @@ export function MatchResultsForm() {
                     };
                     form.reset(formValuesToSet);
                     toast({
-                        title: "Partido Existente Cargado",
-                        description: "Resultados anteriores cargados para edición.",
+                        title: "Partido Existente Cargado", // Title for existing match toast
+                        description: "Resultados anteriores cargados para edición.", // Description for existing match toast
                         variant: "default"
                     });
                 }
@@ -167,7 +168,7 @@ export function MatchResultsForm() {
     let matchDataToSave;
 
     if (existingMatch) {
-        console.log("Updating existing match:", existingMatch.id);
+        console.log("Actualizando partido existente:", existingMatch.id); // Updating existing match
 
         const { rankings: rankingsAfterRevert } = calculateRankingsUpdate(
             existingMatch,
@@ -202,7 +203,7 @@ export function MatchResultsForm() {
         });
 
     } else {
-        console.log("Adding new match");
+        console.log("Añadiendo nuevo partido"); // Adding new match
         const {
             rankings: newRankingsState,
             totalLocalMatchPoints,
@@ -235,7 +236,7 @@ export function MatchResultsForm() {
        toast({
          title: "¡Campeonato Sub12 Finalizado!",
          description: "Calculando y añadiendo puntos Sub12 a la tabla general.",
-         variant: "default",
+         variant: "default", // Variante para el toast de finalización Sub12
          duration: 5000,
        });
      }
@@ -248,7 +249,7 @@ export function MatchResultsForm() {
      if (localGoals === null || visitorGoals === null || localGoals === undefined || visitorGoals === undefined) return '';
      if (localGoals > visitorGoals) return 'bg-green-100 dark:bg-green-900 border-green-500';
      if (localGoals < visitorGoals) return 'bg-red-100 dark:bg-red-900 border-red-500';
-     return 'bg-yellow-100 dark:bg-yellow-900 border-yellow-500';
+ return 'bg-yellow-100 dark:bg-yellow-900 border-yellow-500'; // Class for drawn results
   };
 
   if (rankingsLoading || matchesLoading) {
@@ -275,7 +276,7 @@ export function MatchResultsForm() {
          {existingMatch && (
             <CardDescription className="text-accent text-xs sm:text-sm">
                 Editando partido del {formatDate(existingMatch.date)} entre {rankings.find(c=>c.id === existingMatch.localClubId)?.name} y {rankings.find(c=>c.id === existingMatch.visitorClubId)?.name}.
-                Los cambios actualizarán la tabla de posiciones.
+ Los cambios actualizarán la tabla de posiciones. {/* Description for existing match */}
             </CardDescription>
         )}
       </CardHeader>
@@ -521,8 +522,8 @@ export function MatchResultsForm() {
     </Card>
   );
 }
-
-// Helper function to calculate ranking updates
+// Función de ayuda para calcular actualizaciones de clasificación
+// Función de ayuda para calcular actualizaciones de ranking
 function calculateRankingsUpdate(
     matchData: MatchResult | MatchResultInput & { id: string; date: Date },
     currentRankings: ClubRanking[],
@@ -536,7 +537,7 @@ function calculateRankingsUpdate(
     const visitorClub = currentRankings.find(c => c.id === matchData.visitorClubId);
 
     if (!localClub || !visitorClub) {
-        console.error("Club not found in calculateRankingsUpdate");
+        console.error("Club no encontrado en calculateRankingsUpdate"); // Club not found in calculateRankingsUpdate
         return { rankings: currentRankings, totalLocalMatchPoints: 0, totalVisitorMatchPoints: 0, categoryUpdates: [] };
     }
 
@@ -548,7 +549,7 @@ function calculateRankingsUpdate(
         }
 
         const isLocal = club.id === localClub.id;
-        const newClubData = JSON.parse(JSON.stringify(club)); 
+        const newClubData = JSON.parse(JSON.stringify(club)); // Clonar datos del club para modificación
 
         CATEGORIES.forEach(category => {
             const result = matchData.results[category];
