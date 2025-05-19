@@ -506,8 +506,8 @@ export function useRankings() {
         primeraDivision.sort(sortFn);
         segundaDivision.sort(sortFn);
 
-        const teamsToRelegate = primeraDivision.slice(-2);
-        const teamsToPromote = segundaDivision.slice(0, 2);
+        const teamsToRelegate = primeraDivision.slice(-3); // Changed from -2 to -3
+        const teamsToPromote = segundaDivision.slice(0, 3); // Changed from 0, 2 to 0, 3
 
         const newRankings = prevRankings.map(club => {
             const resetClubStats = {
@@ -528,7 +528,7 @@ export function useRankings() {
             // For teams not promoted or relegated, just reset their stats
             return { ...club, ...resetClubStats };
         });
-        console.log("Promotion and relegation processed. All team stats reset for new season.");
+        console.log("Promotion and relegation processed for 3 teams. All team stats reset for new season.");
         return newRankings;
     });
     setIsSub12FinalizedState(false); // Reset Sub12 finalization status for the new season
@@ -710,3 +710,4 @@ export function usePlayers() {
 
   return { players: getPlayers(), addPlayer, getPlayerByRut, getPlayersByClub, loading };
 }
+
