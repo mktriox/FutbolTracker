@@ -1,5 +1,5 @@
 
-export { UserRole } from './user'; // Export UserRole from user types
+export { UserRole } from './user'; // Exportar UserRole desde los tipos de usuario
 
 export type Category =
   | 'Sub12'
@@ -44,8 +44,8 @@ export interface TeamStats {
 export interface ClubRanking extends TeamStats {
   id: string;
   name: string;
-  division: Division; // Added division
-  // Detailed stats per category
+  division: Division; // División añadida
+  // Estadísticas detalladas por categoría
   categoryStats: Record<Category, TeamStats>;
   disabledSeries?: Record<Category, boolean>;
 }
@@ -68,7 +68,7 @@ export interface MatchResult extends MatchResultInput {
   visitorPoints: number;
 }
 
-export type SuspensionUnit = 'days' | 'dates' | 'months'; // 'dates' represents weekends/match days
+export type SuspensionUnit = 'days' | 'dates' | 'months'; // 'dates' representa fines de semana/días de partido
 
 export interface SuspensionInput {
   playerRut: string;
@@ -117,7 +117,7 @@ export const initialTeamStats = (): TeamStats => ({
 export const initialClubRanking = (id: string, name: string, division: Division): ClubRanking => ({
   id,
   name,
-  division, // Assign division
+  division, // Asignar división
   points: 0,
   played: 0,
   won: 0,
@@ -132,7 +132,7 @@ export const initialClubRanking = (id: string, name: string, division: Division)
   }, {} as Record<Category, TeamStats>),
 });
 
-// Original 16 clubs for 'Segunda Division'
+// 16 clubes originales para 'Segunda División'
 const segundaDivisionClubs: ClubRanking[] = [
   initialClubRanking('club-1', 'Union Catolica', 'Segunda'),
   initialClubRanking('club-2', 'Union Mardones', 'Segunda'),
@@ -152,7 +152,7 @@ const segundaDivisionClubs: ClubRanking[] = [
   initialClubRanking('club-16', 'Lautaro', 'Segunda'), 
 ];
 
-// Original 16 clubs for 'Primera Division' with updated names
+// 16 clubes originales para 'Primera División' con nombres actualizados
 const primeraDivisionClubs: ClubRanking[] = [
   initialClubRanking('club-17', '21 Diciembre', 'Primera'),
   initialClubRanking('club-18', 'Avance', 'Primera'),
@@ -189,14 +189,16 @@ export const INITIAL_CLUBS: ClubRanking[] = [
 
 
 export const SUB12_POINTS_DISTRIBUTION: number[] = [
-    100, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35, 30, 25, 
-    25, 
+    100, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35, 30, 25, // Para 15 equipos
+    25, // Para el 16º equipo si existe, y así sucesivamente para más equipos
 ];
 
 export const NUMBER_OF_TEAMS_PER_DIVISION = 16; 
 export const TOTAL_MATCHES_PER_TEAM_IN_DIVISION = (NUMBER_OF_TEAMS_PER_DIVISION - 1) * 2;
 
+// TOTAL_MATCHES_PER_TEAM en Sub12 considera todos los equipos de ambas divisiones si Sub12 es unificado
 export const TOTAL_MATCHES_PER_TEAM_SUB12_UNIFIED = (INITIAL_CLUBS.length - 1) * 2;
 export const NUMBER_OF_TEAMS = INITIAL_CLUBS.length; 
 
+// Mantenido por compatibilidad, pero la lógica de finalización de Sub12 debería usar TOTAL_MATCHES_PER_TEAM_SUB12_UNIFIED
 export const TOTAL_MATCHES_PER_TEAM = (INITIAL_CLUBS.length - 1) * 2;
