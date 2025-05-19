@@ -1,0 +1,3 @@
+Stats } };
+
+            categoryUpdatesForClub.forEach(({ category, newMatch

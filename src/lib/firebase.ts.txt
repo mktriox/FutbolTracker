@@ -1,0 +1,149 @@
+
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
+import { getAuth, type Auth } from 'firebase/auth';
+
+// IMPORTANTE: Configuración de Firebase
+// -----------------------------------------
+// ESTA ES LA FUENTE MÁS COMÚN DE ERRORES DE AUTENTICACIÓN.
+// Para usar los servicios de Firebase, DEBES configurar este archivo con las credenciales
+// de tu proyecto de Firebase creando un archivo `.env.local`.
+//
+// 1. Ve a la consola de Firebase (https://console.firebase.google.com/).
+// 2. Crea un nuevo proyecto de Firebase o selecciona uno existente.
+// 3. En tu proyecto, ve a Configuración del proyecto (haz clic en el icono de engranaje).
+// 4. Desplázate hacia abajo hasta "Tus apps" y haz clic en el icono "Web" (</>) para agregar una aplicación web
+//    o selecciona una aplicación web existente.
+// 5. Firebase te proporcionará un objeto `firebaseConfig` que contiene tus credenciales.
+//
+// 6. **CREA UN ARCHIVO `.env.local`**:
+//    En el directorio RAÍZ de tu proyecto Next.js (la misma carpeta que `package.json`),
+//    crea un nuevo archivo llamado exactamente `.env.local`.
+//
+// 7. **AGREGA TU CONFIGURACIÓN DE FIREBASE A `.env.local`**:
+//    Copia las siguientes líneas en tu archivo `.env.local` y reemplaza
+//    los valores de marcador de posición con TUS CREDENCIALES REALES
+//    del proyecto de Firebase. Asegúrate de no tener errores tipográficos.
+//
+//    Ejemplo de contenido del archivo `.env.local`:
+      const NEXT_PUBLIC_FIREBASE_API_KEY="AIzaSyDGu5EyKdGkfWpJx_Jm2wpsXr9DhwaLK10"
+      const NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="firebase-uid-for-alexis.firebaseapp.com"
+      const NEXT_PUBLIC_FIREBASE_PROJECT_ID="firebase-uid-for-alexis"
+      const NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="firebase-uid-for-alexis.appspot.com"
+    //  const NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=TU_SENDER_ID_AQUI
+      const NEXT_PUBLIC_FIREBASE_APP_ID="firebase-uid-for-alexis"
+//    const NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=TU_MEASUREMENT_ID_AQUI (opcional)
+//
+// 8. **GUARDA EL ARCHIVO `.env.local`.**
+//
+// 9. **REINICIA TU SERVIDOR DE DESARROLLO**:
+//    Detén tu servidor de desarrollo Next.js (por ejemplo, Ctrl+C en la terminal)
+//    y reinícialo (por ejemplo, `npm run dev` o `yarn dev`). Esto es crucial
+//    para que Next.js cargue las nuevas variables de entorno.
+//
+// La aplicación NO FUNCIONARÁ CORRECTAMENTE y verás errores si estas variables faltan o son incorrectas.
+
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID, // Opcional
+};
+
+// Registrar la configuración cargada para depuración
+// En un entorno de producción, considera no registrar la apiKey directamente o enmascararla.
+console.log("Firebase Configuration Loaded:", {
+  apiKey: firebaseConfig.apiKey ? '********' : 'MISSING_OR_EMPTY', // Enmascarar API key
+  authDomain: firebaseConfig.authDomain || 'MISSING_OR_EMPTY',
+  projectId: firebaseConfig.projectId || 'MISSING_OR_EMPTY',
+  storageBucket: firebaseConfig.storageBucket || 'OPTIONAL_OR_MISSING',
+  messagingSenderId: firebaseConfig.messagingSenderId || 'OPTIONAL_OR_MISSING',
+  appId: firebaseConfig.appId || 'OPTIONAL_OR_MISSING',
+  measurementId: firebaseConfig.measurementId || 'OPTIONAL_OR_MISSING',
+});
+
+// Verificar si las variables de entorno críticas están ausentes
+if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {
+  const missingVars = [];
+  if (!firebaseConfig.apiKey) missingVars.push("NEXT_PUBLIC_FIREBASE_API_KEY");
+  if (!firebaseConfig.authDomain) missingVars.push("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN");
+  if (!firebaseConfig.projectId) missingVars.push("NEXT_PUBLIC_FIREBASE_PROJECT_ID");
+
+  const errorMessage =
+    `ERROR CRÍTICO DE CONFIGURACIÓN DE FIREBASE: Faltan las siguientes variables de entorno esenciales: ${missingVars.join(', ')}.\n` +
+    'Esto significa que tu archivo `.env.local` no está configurado correctamente, le faltan estas credenciales vitales de Firebase, o el servidor de Next.js no ha sido reiniciado después de crear/modificar `.env.local`.\n' +
+    'Por favor, asegúrate de que TODAS las variables NEXT_PUBLIC_FIREBASE_... estén configuradas correctamente en `.env.local` en la raíz de tu proyecto.\n' +
+    'Consulta las instrucciones de configuración detalladas en los comentarios al inicio de este archivo (`src/lib/firebase.ts`).\n' +
+    'LA APLICACIÓN NO SE AUTENTICARÁ Y PROBABLEMENTE FALLARÁ O MOSTRARÁ ERRORES SIN ESTOS VALORES.\n\n' +
+    `Valores actuales cargados (revisa si son correctos y no 'MISSING_OR_EMPTY'):\n` +
+    `  API Key: ${firebaseConfig.apiKey ? '********' : 'FALTA_O_ESTÁ_VACÍO'}\n` +
+    `  Auth Domain: ${firebaseConfig.authDomain || 'FALTA_O_ESTÁ_VACÍO'}\n` +
+    `  Project ID: ${firebaseConfig.projectId || 'FALTA_O_ESTÁ_VACÍO'}`;
+
+  console.error(errorMessage);
+  if (typeof window === 'undefined') { // Lado del servidor
+     throw new Error(errorMessage);
+  } else { // Lado del cliente
+    alert(errorMessage);
+    throw new Error(errorMessage);
+  }
+}
+
+let app: FirebaseApp;
+let authInstance: Auth;
+
+try {
+  if (!getApps().length) {
+    app = initializeApp(firebaseConfig);
+    console.log("Firebase app inicializada correctamente.");
+  } else {
+    app = getApp();
+    console.log("Firebase app ya estaba inicializada, obteniendo la instancia existente.");
+  }
+  authInstance = getAuth(app);
+  console.log("Instancia de Firebase Auth obtenida correctamente.");
+} catch (error: any) {
+  console.error("Error detallado durante la inicialización de Firebase o getAuth:", error);
+  let userFriendlyMessage = 'Error al inicializar Firebase o al obtener la instancia de Auth.\n' +
+  '1. Verifica tu configuración de Firebase en el archivo `.env.local` (en la raíz del proyecto) y asegúrate de que todas las variables de entorno (NEXT_PUBLIC_FIREBASE_...) sean correctas y coincidan con las de tu proyecto en la consola de Firebase.\n' +
+  '2. Asegúrate de que el servicio de Firebase Authentication esté HABILITADO en la Firebase Console para tu proyecto (Authentication > Sign-in method).\n' +
+  '3. Verifica que el `authDomain` (`NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`) en tu `.env.local` sea el correcto para tu proyecto.\n' +
+  '4. Si hiciste cambios en `.env.local`, DEBES REINICIAR tu servidor de desarrollo (Ctrl+C y luego `npm run dev`).\n\n';
+
+  if (error.code === 'auth/invalid-api-key') {
+    userFriendlyMessage += 'Error específico de Firebase: Clave API inválida (auth/invalid-api-key). Verifica que el valor de NEXT_PUBLIC_FIREBASE_API_KEY en tu `.env.local` sea exactamente el que te proporcionó Firebase.\n';
+  } else if (error.code === 'auth/configuration-not-found') {
+    userFriendlyMessage += 'Error específico de Firebase: Configuración de autenticación no encontrada (auth/configuration-not-found).\n' +
+    '   Esto usualmente significa una de estas cosas:\n' +
+    '   a) Firebase Authentication NO está habilitado en tu proyecto en la Firebase Console. Ve a Firebase Console -> Tu Proyecto -> Authentication -> Pestaña "Sign-in method" (Método de inicio de sesión) y habilita al menos un proveedor (ej. Correo electrónico y contraseña).\n' +
+    '   b) El valor de `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` en tu archivo `.env.local` es incorrecto o no corresponde al proyecto de la API Key proporcionada.\n' +
+    '   c) La aplicación web no está correctamente configurada dentro de los ajustes de tu proyecto Firebase.\n';
+  } else {
+    userFriendlyMessage += `Mensaje de error original de Firebase: ${error.message} (Código: ${error.code || 'N/A'})\n`;
+  }
+  
+  userFriendlyMessage += '\nConfiguración de Firebase que se intentó usar (verifica estos valores con los de tu consola Firebase):\n' +
+    `  API Key: ${firebaseConfig.apiKey ? '********' : 'FALTA_O_ESTÁ_VACÍO'}\n` +
+    `  Auth Domain: ${firebaseConfig.authDomain || 'FALTA_O_ESTÁ_VACÍO'}\n` +
+    `  Project ID: ${firebaseConfig.projectId || 'FALTA_O_ESTÁ_VACÍO'}\n`;
+
+  console.error("MENSAJE DETALLADO PARA EL USUARIO:", userFriendlyMessage);
+
+  if (typeof window !== 'undefined') {
+    alert(userFriendlyMessage); // Mostrar alerta en el cliente
+  }
+  // Lanzar un error para detener la ejecución si Firebase no se pudo inicializar correctamente.
+  // Esto es importante para evitar errores posteriores difíciles de depurar.
+  // @ts-ignore: app y authInstance podrían no estar asignadas si el try falla antes.
+  if (!app || !authInstance) { 
+      const criticalFailMessage = "Error crítico: Las instancias de Firebase app o auth no pudieron ser inicializadas debido a errores de configuración previos. " + userFriendlyMessage;
+      console.error(criticalFailMessage);
+      throw new Error(criticalFailMessage);
+  }
+}
+
+// Exportar las instancias, asegurando que 'auth' esté correctamente tipado.
+// El lanzamiento de error anterior debería evitar llegar aquí con authInstance indefinido si la configuración fue incorrecta.
+export { app, authInstance as auth };

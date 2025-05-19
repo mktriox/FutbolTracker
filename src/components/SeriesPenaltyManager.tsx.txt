@@ -1,0 +1,142 @@
+
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useRankings } from '@/lib/store';
+import { CATEGORIES, UserRole } from '@/types'; // Import UserRole
+import { useSession } from 'next-auth/react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+
+const SeriesPenaltyManager: React.FC = () => {
+  const { data: session, status } = useSession();
+  const { rankings, toggleSeriesDisabled, toggleDate3Passed, isDate3Passed, loading: rankingsLoading } = useRankings();
+  const [selectedClubId, setSelectedClubId] = useState<string>('');
+  const { toast } = useToast();
+
+ useEffect(() => {
+    // This check should ideally be in a layout or higher-order component for /admin routes
+    if (!authLoading && (!currentUser || currentUser.role !== UserRole.ADMIN)) {
+      // router.push('/login?message=Access denied. Admin role required.'); // Redirect if not admin
+    }
+  }, [currentUser, authLoading, router]);
+
+  const handleToggleSeries = (category: Category, checked: boolean) => {
+    if (!selectedClubId) return;
+    toggleSeriesDisabled(selectedClubId, category, checked);
+    toast({
+      title: `Serie ${category} ${checked ? 'deshabilitada' : 'habilitada'}`,
+      description: `Para el club ${rankings.find(c => c.id === selectedClubId)?.name}.`,
+    });
+  };
+
+  const handleToggleDate3Passed = () => {
+    toggleDate3Passed();
+     toast({
+       title: `Estado de Fecha 3 ${!isDate3Passed ? 'Activado' : 'Desactivado'}`,
+       description: `Las penalizaciones por series no presentadas ahora ${!isDate3Passed ? 'se aplicarán' : 'no se aplicarán'} a partir de la fecha 3.`,
+     });
+  };
+
+  // If still loading auth or user is not admin, don't render (or show loading/access denied)
+  // This specific component might be part of a larger admin page, so direct redirect here might be too aggressive.
+  // The parent page (e.g., /admin/clubs) should handle the primary access control.
+  if (status === 'loading' || rankingsLoading) {
+    return (
+        <Card className="mt-6">
+            <CardHeader>
+                <CardTitle>Cargando...</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </TooltipTrigger>
+                 <TooltipContent>
+                     <p>Cargando...</p>
+                 </TooltipContent>
+             </Tooltip>
+                 {status === 'loading' && <p>Verificando sesión...</p>}
+                {rankingsLoading && <p>Cargando rankings...</p>}
+            </CardContent>
+        </Card>
+    );
+  }
+  
+  if (!currentUser || currentUser.role !== UserRole.ADMIN) {
+    return null; // Or a message, but parent page should handle full denial
+    const currentUserRole = session?.user ? (session.user as any).role : undefined;
+  }
+
+
+  const selectedClub = rankings.find((club) => club.id === selectedClubId);
+
+  return (
+    <Card className="mt-6 shadow-md">
+      <CardHeader>
+        <CardTitle className="text-xl sm:text-2xl text-primary">Gestión de Penalizaciones de Series</CardTitle>
+        <CardDescription>
+          Configura las series habilitadas/deshabilitadas para los clubes y el estado de la Fecha 3 para penalizaciones.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="clubSelect" className="text-md font-medium">Seleccionar Club</Label>
+          <Select value={selectedClubId} onValueChange={setSelectedClubId}>
+            <SelectTrigger id="clubSelect" className="w-full sm:w-auto sm:min-w-[250px]">
+              <SelectValue placeholder="-- Seleccionar un club --" />
+            </SelectTrigger>
+            <SelectContent>
+              {rankings.sort((a,b) => a.name.localeCompare(b.name)).map((club) => (
+                <SelectItem key={club.id} value={club.id}>
+                  {club.name} ({club.division})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {selectedClubId && selectedClub && (
+          <div className="space-y-4 pt-4 border-t">
+            <h4 className="text-lg font-semibold">Series para {selectedClub.name} ({selectedClub.division})</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {CATEGORIES.filter(cat => cat !== 'Sub12').map((category) => (
+                <div key={category} className="flex items-center space-x-2 p-2 border rounded-md bg-background/30">
+                  <Checkbox
+                    id={`${selectedClubId}-${category}`}
+                    checked={!selectedClub.disabledSeries?.[category]} // Checked if series is NOT disabled (i.e., it's enabled)
+                    onCheckedChange={(checked) => {
+                      // If checkbox is checked (true), it means series should be enabled (disabledSeries = false)
+                      // If checkbox is unchecked (false), it means series should be disabled (disabledSeries = true)
+                      handleToggleSeries(category, !(checked as boolean));
+                    }}
+                    aria-label={`Habilitar/Deshabilitar serie ${category} para ${selectedClub.name}`}
+                  />
+                  <Label htmlFor={`${selectedClubId}-${category}`} className="text-sm cursor-pointer">
+                    {category}
+                  </Label>
+                </div>
+              ))}
+            </div>
+             <p className="text-xs text-muted-foreground mt-1">
+                Marcar una serie la habilita. Desmarcarla la deshabilita. Sub12 siempre está habilitada.
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default SeriesPenaltyManager;
