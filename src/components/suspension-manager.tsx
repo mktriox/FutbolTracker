@@ -31,6 +31,7 @@ import {
 import {
     Tooltip,
     TooltipContent,
+    TooltipProvider, // Proveedor de Tooltip añadido
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { CalendarIcon, Edit, CheckCircle, XCircle } from "lucide-react"; 
@@ -337,6 +338,7 @@ export function SuspensionManager() {
                 </CardDescription>
             </CardHeader>
             <CardContent className="overflow-x-auto">
+              <TooltipProvider>
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -401,9 +403,9 @@ export function SuspensionManager() {
                         )}
                     </TableBody>
                 </Table>
+              </TooltipProvider>
             </CardContent>
         </Card>
     </div>
   );
 }
-
