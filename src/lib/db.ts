@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 
-// Next.js handles .env files automatically, so explicit dotenv.config() is not needed here.
-// Environment variables are directly accessible via process.env.
+// Next.js maneja automáticamente los archivos .env, por lo que no se necesita dotenv.config() explícito aquí.
+// Las variables de entorno son directamente accesibles mediante process.env.
 
 const pool = new Pool({
   // Si DATABASE_URL está definida, úsala.
