@@ -34,12 +34,12 @@ export function RankingTable({ division }: RankingTableProps) {
   const { rankings: rawRankings, loading, isSub12Finalized } = useRankings();
   const [sortedRankings, setSortedRankings] = useState<ClubRanking[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: SortableGeneralKey | null; direction: 'ascending' | 'descending' }>({ key: 'points', direction: 'descending' });
-
+  
   useEffect(() => {
     if (!loading && division) {
-        if (rawRankings.length === 0 || !rawRankings.some(club => club.division === 'Primera')) {
-          console.warn('Ranking data is empty or Primera division data is missing.');
-          // setSortedRankings([]); // Clear sorted rankings if data is problematic
+        if (rawRankings.length === 0 || !rawRankings.some(club => club.division === division)) { // Verificación de división
+          console.warn(`Datos de ranking vacíos o faltan datos para la división: ${division}.`);
+          // setSortedRankings([]); // Limpiar rankings ordenados si los datos son problemáticos
           return;
         }
 
@@ -95,11 +95,13 @@ export function RankingTable({ division }: RankingTableProps) {
   };
 
   const getRowClass = (index: number): string => {
-    const validForRelegation = sortedRankings.length > 2;
-
-    if (division === 'Segunda' && index < 2) return 'bg-blue-100 dark:bg-blue-900'; 
-    if (division === 'Primera' && index < 3) return 'bg-green-100 dark:bg-green-900'; 
-    if (division === 'Primera' && validForRelegation && index >= sortedRankings.length - 2) return 'bg-red-100 dark:bg-red-900'; 
+    const numTeams = sortedRankings.length;
+    // En Segunda división ascienden los 3 primeros equipos
+    if (division === 'Segunda' && index < 3 && numTeams > 3) return 'bg-green-100 dark:bg-green-900';
+    // En Primera división, los 3 primeros lugares (podrían tener bonificación o clasificar a algo)
+    if (division === 'Primera' && index < 3 && numTeams > 3) return 'bg-green-100 dark:bg-green-900';
+    // En Primera división descienden los 3 últimos equipos
+    if (division === 'Primera' && numTeams > 3 && index >= numTeams - 3) return 'bg-red-100 dark:bg-red-900'; 
     return '';
   }
 
@@ -132,7 +134,7 @@ export function RankingTable({ division }: RankingTableProps) {
       <CardContent className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow>{/* Ensure no whitespace between TableHead elements */}
+            <TableRow>
               <TableHead className="w-[40px] cursor-pointer text-center" onClick={() => requestSort('points')}># {getSortIcon('points')}</TableHead><TableHead className="cursor-pointer min-w-[120px] sm:min-w-[150px]" onClick={() => requestSort('name')}>Club {getSortIcon('name')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('points')}>Pts {getSortIcon('points')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('played')}>PJ {getSortIcon('played')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('won')}>PG {getSortIcon('won')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('drawn')}>PE {getSortIcon('drawn')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('lost')}>PP {getSortIcon('lost')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('goalsFor')}>GF {getSortIcon('goalsFor')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('goalsAgainst')}>GC {getSortIcon('goalsAgainst')}</TableHead><TableHead className="text-center cursor-pointer w-[50px] sm:w-[60px]" onClick={() => requestSort('goalDifference')}>DG {getSortIcon('goalDifference')}</TableHead>
             </TableRow>
           </TableHeader>
@@ -155,8 +157,10 @@ export function RankingTable({ division }: RankingTableProps) {
             ) : sortedRankings.length > 0 ? (
               sortedRankings.map((club, index) => (
                 <TableRow key={club.id} className={cn(getRowClass(index), "transition-colors duration-300")}>
-                  <TableCell className="text-center font-medium">{index + 1}</TableCell>
-                  <TableCell className="whitespace-nowrap">{club.name} {index < 3 ? "🏆" : ""}</TableCell>
+                  <TableCell className="text-center font-medium">
+                    {index + 1}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">{club.name}</TableCell>
                   <TableCell className="text-center font-semibold">{club.points}</TableCell>
                   <TableCell className="text-center">{club.played}</TableCell>
                   <TableCell className="text-center">{club.won}</TableCell>
@@ -180,4 +184,3 @@ export function RankingTable({ division }: RankingTableProps) {
     </Card>
   );
 }
-
