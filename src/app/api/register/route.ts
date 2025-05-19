@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
             created_at: newUser.created_at,
           },
         },
-        { status: 201 } // 201 Created
+        { status: 201 } // 201 Creado
       );
     } finally {
       // Asegúrate de liberar el cliente incluso si hay un error
@@ -48,10 +48,10 @@ export async function POST(req: NextRequest) {
     console.error('Error en el registro de usuario:', error);
 
     // Manejar el caso de email duplicado (error de UNIQUE constraint)
-    if (error.code === '23505') { // PostgreSQL unique_violation error code
+    if (error.code === '23505') { // Código de error unique_violation de PostgreSQL
         return NextResponse.json(
             { message: 'El correo electrónico ya está registrado' },
-            { status: 409 } // 409 Conflict
+            { status: 409 } // 409 Conflicto
         );
     }
 
