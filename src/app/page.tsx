@@ -111,7 +111,7 @@ export default function Home() {
                  <SelectContent>
                    {DIVISIONS.map((div) => (
                      <SelectItem key={div} value={div}>
-                       División {div}
+                        {div} División
                      </SelectItem>
                    ))}
                  </SelectContent>
